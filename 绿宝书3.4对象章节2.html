@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+</head>
+
+<body>
+
+</body>
+<script>
+  let f1 = new Function, f2 = new Function
+  Object.setPrototypeOf(f2, f1)
+  console.log(f2 instanceof f1); //false
+  console.log(f1.isPrototypeOf(f2)) //true
+  class MyObject { }
+  class MyObjectEx extends MyObject { }
+  console.log(MyObjectEx instanceof MyObject); //false
+  console.log(MyObject.isPrototypeOf(MyObjectEx)); //true
+
+  //对象属性
+  function foo() {
+    const showInArrow = () => {
+      console.log(this.name);
+    }
+    showInArrow() //示例1
+
+    const obj = {
+      showInArrow,
+      name: 'aObject',
+      showThis: function() {
+        console.log(this.name);
+      }
+    }
+    // with语法
+    with (obj) {
+      const showThis2 = () => {
+        console.log(this.name);
+      }
+      showThis()  //示例2
+      showThis2() //示例3
+      showInArrow() //示例4
+    }
+  }
+
+  foo.call({ name: 'outSide' }) //示例1 'outSide'   示例2 'aObject'  示例3 'outSide'  示例4 'outSide'
+  /*
+  with语句中的对象方法，会隐式地传入with的对象作为this引用
+  箭头函数会忽略“传入的this对象”，即bind(),apply(),call(),以及Array.forEach()等方法传入的this对象，在
+  箭头函数函数里是不生效的。箭头函数的this，只与当前的上下文有关
+  */
+
+  // forEach(callbackFn, thisArg)  thisArg可选参数。当执行回调函数 callback 时，用作 this 的值。
+
+  function foo2() {
+    var func = () => console.log('foo2', this.name);
+    //func.call(new Object)  //报错 TypeError: func.call(...) is undefined
+    [{ name: 'arr1' }].forEach(func, new Object)
+  }
+  foo2.call({ name: 'outSide2' })  //outSide2 
+
+  function MyFunction() { }
+  MyFunction.prototype = new Function()
+  const myFunc = new MyFunction
+  console.log(myFunc instanceof Function); //true
+  myFunc()   //Uncaught TypeError: myFunc is not a function
+</script>
+
+</html>
