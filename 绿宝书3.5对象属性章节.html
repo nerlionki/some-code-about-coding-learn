@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+</head>
+
+<body>
+
+</body>
+<script>
+  const obj = {}
+  obj.n1 = 100
+  obj.data = 100
+  obj2 = Object.create(obj, { n2: { value: 100, writable: false } })
+  obj2.n2 = 200
+  console.log(obj2.n2); //100
+  Object.defineProperty(obj, 'n1', { enumerable: false })
+  console.log(Object.keys(obj)); //[]
+
+  console.log('继承n1', obj2.n1);//100
+  console.log('继承n1', obj2.hasOwnProperty('n1')); //false
+
+  obj2.n1 = 300
+  console.log('定义自身属性n1', obj2.hasOwnProperty('n1')); //true
+  console.log('定义自身属性n1', obj2.propertyIsEnumerable('n1')); //true
+
+  delete obj2.n1
+  console.log('删除自有属性n1后', obj2.hasOwnProperty('n1'));//false
+  console.log('删除自有属性n1后', obj2.propertyIsEnumerable('n1')); //false
+  Object.freeze(obj)
+  obj2.data = 400
+  console.log('obj冻结后', obj2.data); //100 无法重新赋值
+  Object.defineProperty(obj2, 'data', { value: 400 })
+  console.log('重新赋值', obj2.data); //400
+
+  let num = 100
+  const setObj = {
+    data: 100,
+    get value() {
+      return this.data
+    },
+    set value(newvalue) {
+      this.data = newvalue
+    },
+    get num() {
+      return num
+    },
+    set num(value) {
+      num = value
+    }
+  }
+  Object.freeze(setObj)
+  console.log(Object.isFrozen(setObj)); //ture
+  setObj.data = 200
+  console.log(setObj.data); //100
+  setObj.value = 500
+  console.log(setObj.value); //100 虽然set get不受freeze的影响，但是需要修改的值data受frezee影响
+  setObj.num = 400
+  console.log(setObj.num); //400 不受freeze函数的影响
+
+  /*子对象只继承父对象的属性，属性的性质没有继承。因此子对象可以通过赋值定义同名属性，进行复写。但需要注意的是当父对象冻结或者指定属性只读，子对象的赋值运算失效，
+  但是可以通过defineProperty等重新声明属性的方式，达到复写的效果  */
+</script>
+
+</html>
