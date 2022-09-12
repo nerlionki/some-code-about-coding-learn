@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+</head>
+
+<body>
+
+</body>
+<script>
+  const empty = new Object;
+  console.log(typeof empty); //object
+  console.log(empty instanceof Object); //true
+  console.log('toString' in Object); //true
+  let num = 0
+  for (const n in Object) {
+    num++
+  }
+  console.log(num); // 0
+  function MyObject() { }
+  const obj = new MyObject
+  console.log(MyObject);
+  console.log(MyObject.prototype.constructor === MyObject); //true
+  // delete MyObject.prototype.constructor
+  // console.log(MyObject.prototype.constructor === Object); // true
+  function MyObjectEx() {
+    // this.constructor = MyObjectEx  //此时输出arr会变成 [MyObject,MyObject,Object]
+  }
+  MyObjectEx.prototype = new MyObject()
+  MyObjectEx.prototype.constructor = MyObjectEx  //将构造器重新指回自己
+  const obj2 = new MyObjectEx()
+  var proto = Object.getPrototypeOf(obj2)
+  const arr = []
+  do {
+    arr.push('' + proto.constructor)
+    proto = Object.getPrototypeOf(proto)
+  } while (proto);
+
+  console.log(arr); // [MyObjectEx,MyObject,Object] 最后变为null终止循环
+  console.log(obj2 instanceof MyObject); //true
+
+  function nullObject() {
+    this.showMe = function() {
+      console.warn(typeof this);
+    }
+  }
+  nullObject.prototype = null
+  var nullObj = new nullObject;
+  nullObj.showMe() //obj
+  try {
+    console.log(nullObj instanceof nullObject);
+  } catch (error) {
+    console.error(error.message);  // 'prototype' property of nullObject is not an object
+  }
+  console.log(Object.getPrototypeOf(nullObj) === Object.prototype); //true
+  Object.setPrototypeOf(nullObj, null)
+  console.log(typeof nullObj); //object
+  console.log('toString' in nullObj); //false
+  console.log(nullObj instanceof Object); //false
+  try {
+    console.log(nullObj instanceof null); //invalid 'instanceof' operand null  null不能参加instanceof运算
+  } catch (error) {
+    console.error(error.message);
+  }
+  nullObj.showMe()  //object
+
+  console.log(Object.getOwnPropertyNames(Object));  //获取Object上的基类方法 static
+
+  console.log(Object.getOwnPropertyNames(Object.prototype));   //获取Object.property的成员
+</script>
+
+</html>

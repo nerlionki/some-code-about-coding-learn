@@ -1,0 +1,9 @@
+couter-reset 跟counter-increment需要配合::before跟::after伪元素的content使用
+@counter-style 标识符可以自定义一个list-style，需注意只适用在display:list-item的元素身上，不同的浏览器
+对@counter-style的渲染不太相同，需注意
+也可以通过::marker伪元素进行调整，当同时有@counter-style跟::marker是 marker伪元素会覆盖原有couter-style
+同时::marker也可以通过content属性来使用counter方法，等同于::before跟::after伪元素一样
+
+
+transition作用于元素上时，元素上的伪类如:hover等都会有transition效果
+如果transition仅作用在伪类上，当伪类消失时不会出现伪类效果

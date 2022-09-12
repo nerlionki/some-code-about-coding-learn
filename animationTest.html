@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+
+</head>
+<style>
+  #colorChange {
+    width: 200px;
+    height: 200px;
+    margin: auto;
+    animation-name: red, green, blue;
+    animation-duration: 11s, 9s, 6s;
+    /* 使用forwards跟both后，会从white变为blue然后不会再发生颜色上改变 */
+    animation-fill-mode: forwards;
+  }
+
+  @keyframes red {
+    to {
+      background-color: red;
+    }
+  }
+
+  @keyframes green {
+    to {
+      background-color: green;
+    }
+  }
+
+  @keyframes blue {
+    to {
+      background-color: blue;
+    }
+  }
+</style>
+
+<body>
+  <div id="colorChange"></div>
+</body>
+<script>
+</script>
+
+</html>

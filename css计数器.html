@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+</head>
+<style>
+  .test {
+    counter-reset: test;
+  }
+
+  .container ul,
+  .container ol {
+    counter-reset: test;
+    list-style: test1;
+  }
+
+  .container ul li::before {
+    counter-increment: test 2;
+    content: counter(test);
+  }
+
+  .container ol li::before {
+    counter-increment: test 3;
+    content: counter(test);
+  }
+
+
+  .test .contnet::before {
+    counter-increment: test 8;
+    content: counter(test);
+  }
+
+  @counter-style test1 {
+    system: numeric;
+    symbols: '0''1''2''3''4''5';
+    suffix: '!@'
+  }
+
+  .marker ul>li {
+    list-style: test1 inside;
+    counter-increment: test 4;
+  }
+
+  .marker ul>li::marker {
+    content: counter(test) '测试';
+    font-size: 1.2em;
+    color: red;
+  }
+
+  .marker ul {
+    transform: scale(1, 1);
+
+  }
+
+  .marker ul:hover {
+    transform: scale(1, 2);
+    transition: all 2s ease 50ms;
+  }
+</style>
+
+<body>
+  <div class="container">
+    <ul>
+      <li>one</li>
+      <li>two</li>
+      <ol>
+        <li>three one</li>
+        <li>three two</li>
+        <li>three three</li>
+      </ol>
+      <li>four</li>
+      <li>test</li>
+      <li>javescript</li>
+      <li>vue</li>
+    </ul>
+  </div>
+  <div class="container">
+    <div class="test">
+      <div class="contnet">javasrcipt</div>
+      <div class="contnet">vue</div>
+      <div class="contnet">react</div>
+
+      <div class="contnet">spring</div>
+      <div class="contnet">spring-boot</div>
+      <div class="contnet">spring-cloud</div>
+
+    </div>
+
+  </div>
+  <div class="marker">
+    <ul>
+      <li>德鲁伊</li>
+      <li>恶魔猎手</li>
+      <li>牧师</li>
+    </ul>
+  </div>
+</body>
+<script>
+
+</script>
+
+</html>

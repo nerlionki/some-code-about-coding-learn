@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+
+</head>
+<style>
+</style>
+
+<body>
+  <div id="colorChange"></div>
+</body>
+<script>
+  for (let i = 0; i < 10; console.log(i), i++);  //无循环体语句  其实是循环体卸载i++中，不推荐此写法
+
+  let str = '1234567890'
+  // 标签语句
+  myLabel: {
+    if (str && str.length < 10) {
+      break myLabel
+    }
+    str = str.substr(str.length - 10)
+  }
+  console.log(str); //1234567890
+
+  console.log(1 + (y => y + 2)(5) + 10);  //18
+  void function(x, y) {
+    console.log('void', x + y);
+  }(1, 2);  //使用void调用匿名函数，多用于源码
+
+  let mutiply = ''
+  test:
+  for (let i = 1; i < 9; i++) {
+    for (let j = 1; j < 9; j++) {
+      if (j <= i) {
+        console.log(i, j)
+        continue test   //会跳出j循环，直接到i循环,continue label 只能适用于循环体，引用mylabel会报错
+      }
+
+      mutiply += ' ' + i * j + ' '
+    }
+
+  }
+  console.log(mutiply); //输出为空字符串
+
+  let a1 = 10
+  let obj = { a: 1, b: 2 }
+  // 指定obj为默认对象，语句中的a，b变量分别指向obj.a和obj.b
+  with (obj) {
+    a1 += a
+    console.log(b, a1);
+  }
+</script>
+
+</html>

@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+</head>
+
+<body>
+
+</body>
+<script>
+  function getValue() {
+    return this.value
+  }
+  function MyObject() {
+    this.name = 'Object1'
+    this.value = 123
+    this.getValue = getValue
+  }
+  MyObject.prototype.name = 'hello world'
+  const obj = new MyObject
+
+  console.log(obj.getValue());
+  console.log('删除前', obj.name);  //Object1
+  delete obj.name
+  console.log('删除后', obj.name); //hello world 重置为原型上的值
+  // console.log(delete MyObject.prototype); //TypeError: property "prototype" is non-configurable and can't be deleted  
+
+  const obj2 = new MyObject() //MyObject的实例对象
+  //原型对象
+  MyObject.prototype.deleteProp = 100
+  delete obj.deleteProp   //不会删除原型上的deleteProp
+  console.log(obj.deleteProp, obj2.deleteProp); //100 100
+  delete obj.constructor.prototype.deleteProp
+  console.log(obj.deleteProp, obj2.deleteProp);  //undefined undefined 删除了原型上的deleProp，影响到了obj2
+
+  class MyObjectEx extends MyObject {
+    constructor() {
+      super() //使用this前必须调用一次super
+      this.name2 = super.name + ' heihei' // super 绑定的是MyObject.prototype
+      this[Symbol('a')] = 12;
+    }
+    [Symbol.toPrimitive] = () => 1 //改变了 对象原型上的valueOf方法
+
+    static test() {
+      return this.name
+    }
+  }
+  MyObjectEx.prototype.enumProp = false
+  const obj3 = new MyObjectEx()
+  console.log(MyObjectEx.test()); //MyObjectEx 类的静态属性，obj3无法调用
+  console.log(obj3, obj3 + 100, obj3 instanceof MyObject);  //{getValue: function getValue(),name: "Object1",name2: "hello world heihei",value: 123,Symbol(Symbol.toPrimitive): function Symbol.toPrimitive(),Symbol(a): 12}  101  true
+  for (const i in obj3) {
+    console.log('i', i); //name getValue name2 value
+  }
+  console.log(Object.keys(obj3)); // ['name', 'value', 'getValue', 'name2']
+  // 原型上的enumProp不会枚举，但能正常使用。
+  console.log(obj3.enumProp) //false
+  // Symbol类型属性枚举方法
+  console.log(Object.getOwnPropertySymbols(obj3)) //[Symbol(Symbol.toPrimitive), Symbol(a)]
+</script>
+<script type="module">
+  import { SymbolObject } from './test1.js'
+  const a = Symbol('a');
+  const b = Symbol.for('b');
+  console.log(SymbolObject[a], SymbolObject[b], SymbolObject['myProp']);  //undefined 200 300,可以使用 Symbol.for建立全局符号
+</script>
+<script>
+  function Test() {
+    this.name = 'hello world'
+    return new MyObject
+  }
+  const tryTest = new Test
+  console.log(tryTest);  //返回一个new MyObject的实例对象
+  console.log(tryTest instanceof Test, tryTest instanceof MyObject); //false true
+  /*new关键字的内部执行原理：
+   a、自动创建一个新对象，在内存中
+   b、改变了函数内部的this的指向，改成了第一步创建的新对象(构造函数的实例对象)
+   c、执行函数内部的代码，并且将第一步创建的对象的__ proto__(隐私原型)与构造函数的prototype(原型对象)进行了关联
+   d、检查当前函数是否主动返回对象，如果没有，则返回第一步创建的新对象 */
+</script>
+
+</html>

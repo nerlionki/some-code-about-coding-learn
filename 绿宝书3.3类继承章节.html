@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+</head>
+
+<body>
+
+</body>
+<script>
+  class normal {
+    name = 'normal'
+    static foo() {
+      console.log('我是' + super.toString());   //相当于Object.toString.bind(this)
+    }
+    bar() {
+      console.log(this.name);
+    }
+  }
+  normal.foo()
+  /* 我是class normal {
+    static foo() {
+      console.log('我是' + super.toString());
+    }
+  }*/
+  class normal2 extends normal {
+    name = 'normal2'
+    bar2() {
+      super.bar()
+    }
+  }
+  (new normal2).bar2() //normal2
+
+  class MyObject {
+    static get count() {
+      return 10
+    }
+  }
+  MyObject.prototype.x = 10
+  MyObject.prototype.y = 'abc'
+  MyObject.x = true
+  MyObject.y = 'efg'
+  class MyObjectEx extends MyObject {
+    foo() {
+      console.log('类继承动态', super.x);
+    }
+    static bar() {
+      console.log('类继承静态', super.y);
+    }
+    static get count() {
+      return super.count + 3
+    }
+  }
+  const obj1 = new MyObjectEx
+  obj1.foo() //10
+  obj1.x = 20
+  console.log('obj自有属性', obj1.x); //20
+  obj1.foo() //10
+  MyObject.prototype.x = 30
+  obj1.foo() //30
+  console.log('obj自有属性', obj1.x); //20
+  MyObjectEx.bar() //efg
+
+  // 获取自身原型的构造器
+  function parent(me) {
+    return Object.getPrototypeOf(me).constructor
+  }
+  class MyObjectEx2 extends MyObjectEx {
+    static get count() {
+      return super.count + 3
+    }
+    print() {
+      console.log(parent(this));
+      console.log(parent(this).count + 1);
+    }
+  }
+  (new MyObjectEx2).print() //17
+  console.log(MyObjectEx2.count + 1);   //17
+  // 静态对应父类的静态 动态对应父类原型
+
+  const obj = {
+    foo() {
+      console.log('字面量', super.x); //指向原型
+    },
+  }
+  obj.foo()  //undefined
+  Object.setPrototypeOf(obj, { x: 100 })
+  obj.foo() // 100
+  const nullObject = Object.create(null)
+  nullObject.foo = obj.foo
+  nullObject.foo()  //100
+
+  class Test {
+    constructor() {
+      console.log('x:', this.x, super.x);
+    }
+  }
+  Test.prototype.x = 100
+  new Test//100 undefined 没有父类可以调用
+  Object.getPrototypeOf(Test.prototype).x = 200
+  new Test // 100 200 设定原型对象的父类的值，使其具有父类。进而super.x可以调用
+  class Test2 extends null{
+    static foo() {
+      console.log('hello world');
+    }
+  }
+  try {
+    new Test2
+  } catch (error) {
+    console.error(error.message);  //火狐：super is not a constructor  谷歌：Super constructor null of Test2 is not a constructor
+  }
+  Test2.foo() //hello world
+</script>
+
+</html>

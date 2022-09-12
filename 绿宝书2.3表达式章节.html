@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+
+</head>
+<style>
+</style>
+
+<body>
+  <div id="colorChange"></div>
+</body>
+<script>
+  console.log(void 1 + 2); //NaN 先执行Void 1结果为undefined 在执行 undefined+2
+  function bar() {
+    console.log('运行了Bar函数');
+    return 2 + 3
+  }
+  console.log(void bar()); //会调用bar函数，但是强制返回为undefined
+  const { toString: X } = 100
+  Number.prototype.format = X
+  const test = 8
+  console.log(X, test.format(2)); //输出toString函数   1000 test.format(2)等价于test.toString(2)
+  function foo(tpl, ...values) {
+    console.group('模板字符串');
+    console.log(tpl); // [ "try call name:", " arguments:", " length:", " test:", "" ] 模板
+    console.log(values); //   ['foo', null, 1, 4]  模板字符串的值
+    console.log(arguments);
+    console.groupEnd()
+  }
+  foo.test = 4
+  foo`try call name:${foo.name} arguments:${foo.arguments} length:${foo.length} test:${foo.test}`
+  let s1 = 'abc'
+  console.log('NaN比较1', s1 > NaN, s1 < NaN, s1 == NaN, s1 != NaN); //NaN比较1 false false false true
+
+  let s2 = 666
+  console.log('NaN比较2', s2 > NaN, s2 < NaN, s2 == NaN, s2 != NaN);// NaN比较2 false false false true
+  // 与NaN进行比较运算，结果都为false
+
+  console.log('Symbol类型转换', [Boolean(Symbol()), !Symbol(), Symbol() == true, Symbol() === true]);   //[ true, false, false, false ]
+  // Symbol可以转换为true，但不等值于true
+
+  console.log('相等运算符', [{} == {}, /./ == /./, function() { } == function() { }]);  // [ false, false, false ]  引用位置不同导致的
+  console.log('严格相等运算符', [{} === {}, /./ === /./, function() { } === function() { }]); // [ false, false, false ]  引用位置不同导致的
+
+  /*注意 isNaN() 和 Number.isNaN() 之间的区别：
+  如果当前值是 NaN，或者将其强制转换为数字后将是 NaN，则前者将返回 true。
+  而后者仅当值当前为 NaN 时才为 true： */
+  isNaN('hello world');        // true
+  Number.isNaN('hello world'); // false
+
+</script>
+
+</html>

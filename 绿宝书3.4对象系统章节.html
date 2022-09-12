@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+</head>
+
+<body>
+
+</body>
+<script>
+  const extend = function(subclass, baseclass) {
+    // 保存baseClass构造函数
+    subclass.baseContructor = baseclass;
+    subclass.base = {};
+    //生成一个baseclass的实例对象，并绑定在subclass.base上  类似super
+    baseclass.call(subclass.base);
+  }
+
+
+  function Mouse() { };
+
+  function Animal(name) {
+    this.name = name;
+    this.say = function(msg) {
+      console.log(this.name + ": " + msg)
+    }
+    this.eat = function() {
+      this.say("yum");
+    }
+  }
+
+
+  function Cat(name) {
+    // 将Animal上的方法抄写在自己身上
+    Cat.baseContructor.call(this, name);
+    this.eat = function(food) {
+      if (food instanceof Mouse) {
+        Cat.base.eat.call(this);
+      }
+      else {
+        this.say('yuk!' + food.name);
+      }
+    }
+  }
+
+  extend(Cat, Animal);
+
+
+
+  function Lion(name) {
+    Lion.baseContructor.call(this, name);
+  }
+
+
+  extend(Lion, Cat);
+
+
+  var cat = new Cat('Cat');
+  var mouse = new Mouse();
+  var showdow = { name: 'unknown' }
+  cat.eat(mouse); //Cat: yum
+  cat.eat(showdow) //Cat: yuk!unknown
+  var lion = new Lion('Lion');
+  lion.eat(mouse); //Lion: yum
+  console.log(lion.name); //Lion
+
+  console.log(cat instanceof Cat);  //true
+</script>
+
+</html>

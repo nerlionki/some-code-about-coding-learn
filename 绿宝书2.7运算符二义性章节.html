@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+
+</head>
+<style>
+</style>
+
+<body>
+  <div id="colorChange"></div>
+</body>
+<script>
+  var n = -10;
+  var n1 = +n;
+  console.log(n1);
+  var str = ('hello world', 1000)
+  console.log(str); //1000 ,运算符返回的是最后一个表达式的值
+  // break (labelName)是不允许的，labelName是标签，不可以被()运算符所处理
+  const code = "if (true) {entry:1}"
+  const value = eval(code)
+  console.log(value);  //1
+  const code1 = "if (true) ({entry:1})"
+  const value1 = eval(code1)
+  console.log(value1); //Object { entry: 1 }
+  function foo(x, y) {
+    console.log(x + y);
+  } (1, 2);   // 语法被解释为fuciton foo{....};和(1,2);两个部分
+  (y => console.log('test', y))(1);
+  const objValue = eval('{}')
+  console.log(objValue);
+  // const objValue1 = eval(`${{}}`)
+  // console.log(objValue1); //[object Object] ${}被理解为表达式，会在eval中报错
+  const { x, y, 1: { a } } = { x: 1, y: '2', 1: { a: 'hello' } }
+  console.log(a);
+  console.log({ 12e3: 100 });
+  // const {`a`: a}={ a: 212 } //解构语法中左侧不能模板字符串
+  let i = 100, j = 100, print = x => console.log(x);
+  print(i += 20, i *= 2, 'value' + i) // 120
+  console.log(i); //240
+  print((j += 20, j *= 2, 'value' + j)) //value240 强制运算符
+  console.log([[1][1]]); //[undefined]
+  var { num = 100 } = {}
+  console.log(num);
+  // const { 100: num2 = 100 } = { 100: num2 = 'abc' } //报错 can't access lexical declaration 'num2' before initialization
+  // console.log(num2);
+  const { num3 = 100 } = { num3: 'abc' }
+  console.log(num3); //'abc'
+</script>
+
+</html>

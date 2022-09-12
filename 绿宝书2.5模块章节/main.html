@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+</head>
+
+<body>
+
+</body>
+<script type="module">
+  import num from './test1.js';
+  import * as test from './test2.js'  //需要as 进行重命名
+  import y from './test2.js'
+  import { x as abc, arr } from './test2.js'
+  // import { str1,str2 } from './test3.js'// ambiguous indirect export: str2
+  console.log(num); //3
+  console.log(test);//​{ default: 200 x: 100​ Symbol(Symbol.toStringTag): "Module"}
+  let { x } = test
+  x = 10
+  console.log(x); //使用解构可以重新赋值
+  // test.x = '789'   TypeError: "x" is read-only
+  // test.y = 10000  //使用test进行调用 提示y为只读
+  console.log(test.y);  //undefined
+  let desc = Object.getOwnPropertyDescriptor(test, 'x')
+  console.log(desc);  //{ value: 100, writable: true, enumerable: true, configurable: false }
+  desc.value = 'abc'
+  // Object.defineProperty(test, 'x', desc) //报错 can't redefine non-configurable property "x"
+
+  console.log(y); //200
+  //y = 'efg'  //  TypeError: "y" is read-only
+  test.arr[5] = 'hello world'
+  arr[2] = 100  //引用对象却可以改变它的属性值
+  console.log(arr);
+  /* import property from module-name
+  其中的property是只读的值，不能直接修改其值。但是property作为引用对象，可以改变自身的属性值。
+  */
+</script>
+
+</html>
