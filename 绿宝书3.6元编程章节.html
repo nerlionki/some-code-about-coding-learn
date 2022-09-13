@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+</head>
+
+<body>
+
+</body>
+<script>
+  class MyObject {
+    static [Symbol.hasInstance](obj) {
+      console.log(super[Symbol.hasInstance], super.constructor);
+      return super[Symbol.hasInstance](obj) || (obj && obj.className == 'MyObject')  //obj instanceof Function
+    }
+  }
+  const obj = { className: 'MyObject' }
+  const obj2 = new Function([1, 2, 3])
+  console.log(obj instanceof MyObject, obj2 instanceof MyObject);
+
+  // 元
+  class Meta extends null{
+    constructor() {
+      return Object.setPrototypeOf(class extends null{
+        constructor() {
+          return Object.create(new.target.prototype)
+        }
+        static [Symbol.hasInstance](obj) {
+          return Object.prototype.isPrototypeOf.call(this.prototype, obj)
+        }
+      }, new.target)
+    }
+    static [Symbol.hasInstance](obj) {
+      return Object.prototype.isPrototypeOf.call(this, obj)
+    }
+    //Meta 派生的所有类类型
+    static isMeta(obj) {
+      return obj instanceof Meta && obj.prototype instanceof Meta
+    }
+    // 原子对象
+    static isAtom(obj) {
+      return (!obj instanceof Object) && ['object', 'function'].includes(typeof obj)
+    }
+  }
+  class MetaClass extends Meta {
+    //元类/类类型
+    static isClassOf(obj) {
+      return obj instanceof this || obj.constructor instanceof this
+    }
+  }
+  const MetaObject = new MetaClass()
+  console.log(MetaObject instanceof MetaClass);
+  console.log('类类型', Meta.isMeta(MetaClass));
+  console.log('原子类型', Meta.isAtom(MetaObject));
+
+</script>
+
+</html>
