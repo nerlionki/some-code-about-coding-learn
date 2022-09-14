@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+</head>
+
+<body>
+
+</body>
+<script>
+  var x = 'outer', y = 'outer', z = 'outer'
+  function foo() {
+    console.log([x, y, z]);//[undefined,undefined,outer] x,y由于变量提升原因，变成foo内部顶级变量名。z没有提升使用外部的z
+    if (true) {
+      console.log(typeof x); //function
+      function x() { }
+
+    } else {
+      function y() { }
+    }
+    console.log([x, y, z]); // [f x(),undefined,]
+  }
+  foo()
+
+  // 函数内部变量提升的3种方式
+  function bar() {
+    { function x() { } }
+
+    labelName: function y() {
+
+    }
+    if (true) function z() { }
+    console.log([x, y, z]);
+  }
+  bar()
+
+  function foo1() {
+    'use strict'
+    console.log([x, y, z]);//['outer','outer','outer'] 严格模式下，不进行变量提升
+    if (true) {
+      console.log(typeof x); //function 在if语句块中变量提升
+      function x() { }
+
+    } else {
+      function y() { }
+    }
+    console.log([x, y, z]); // ['outer','outer','outer'] function x跟y相当于块级变量
+  }
+  foo1()
+</script>
+
+</html>
