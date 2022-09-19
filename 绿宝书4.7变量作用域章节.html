@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+</head>
+
+<body>
+
+</body>
+<script>
+  var x = 100
+  y = 200
+  eval('var z=300')
+  //x,y,z都作为全局变量实现
+  console.log(window.hasOwnProperty('y'), window.hasOwnProperty('x'), window.hasOwnProperty('z')); // true true
+
+  console.log(delete y, typeof y); // true undefined   可以删除y
+  console.log(delete x, typeof x); // false  number   x不可删除
+
+  var desc = Object.getOwnPropertyDescriptor(window, 'x')
+  console.log(desc.configurable); //false
+  console.log(delete window.x, delete x); //false  false
+
+  //eval 动态声明的变量，是可以删除的全局变量
+  var desc2 = Object.getOwnPropertyDescriptor(window, 'z')
+  console.log(desc2.configurable);  //true
+  console.log(delete window.z, delete z); //true 尝试输出z，会报错 z is not defined
+</script>
+
+</html>
