@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+</head>
+<body>
+  
+</body>
+<script>
+function chars(params) {
+  let result=[],c='a'.charCodeAt(0)
+  for (let i = 0; i < 26; i++) {
+    result.push(c+i)
+    
+  }
+  return String.fromCharCode(...result) //静态 String.fromCharCode() 方法返回由指定的 UTF-16 代码单元序列创建的字符串。
+}
+
+console.log(`the string is "${chars()}"`);
+
+console.log(`the string is:\n${
+  (function(){
+    return new Array(3).fill(chars())
+  })().join('\n')
+}`);
+
+console.log(String.fromCharCode(189, 43, 190, 61));
+// expected output: "½+¾="
+
+</script>
+</html>
