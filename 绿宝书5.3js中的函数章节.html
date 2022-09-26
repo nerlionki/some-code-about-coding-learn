@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+</head>
+
+<body>
+
+</body>
+<script>
+  let x = 100
+  const obj = { x: 200, f: function() { console.log(this.x); } }
+  obj.f();  //200
+  (obj.f)(); //200 本质等于上一个，只是obj.f的引用
+  (0, obj.f)(); //undefined 连续运算符导致是求值
+
+  let f = function func2() {
+    console.log(typeof func2);
+  }  //本质还是求值，赋值表达式之外的上下文是无效的
+  f() //function
+  console.log(typeof func2, typeof f); //undefined function
+
+  let f2 = function() {
+    console.log(typeof f2);
+  }
+  f2() //function
+  x = f2
+  f2 = 'a string'
+  x() //string
+  f() //function
+  x = f
+  f = 'a string'
+  x() //function
+  /*
+  具名函数与匿名函数的区别 1是否有一个可影响当前作用域的标识符 2.是否可以用作声明语句
+  f2跟f的差异在，f中的有一个函数体内可以访问的名字func2，func2无法在f体外的上下文访问，所以无法改变
+  */
+
+  function foo(a = 1, b, c = 2, d) {
+    console.log(...arguments); //undefined, 100, 200, 300
+    console.log(a, b, c, d); //1 100 200 300
+  }
+  foo(undefined, 100, 200, 300)
+  // arguments会严格反映传入参数，不受默认参数影响
+
+  function changeFileName(filename) {
+    var [filename2, ...args] = arguments
+    filename = 'new filename'
+    console.log(arguments[0]); //new filename
+    console.log(filename2); //test
+
+    arguments[0] = filename2
+    console.log(filename); //test
+
+    filename2 = 'update again'
+    console.log(arguments[0]); //test
+    console.log(filename); //test
+  }
+  changeFileName('test') //filename2只与初始绑定有关
+
+  function bar(v1, v2 = null, v3, v4 = 1, v5) {
+    console.log(v1, v2, v3, v4, v5);
+  }
+  bar('V1', undefined, "v3") //V1 null v3 1 undefined
+  console.log(bar.length); //1  length 是函数对象的一个属性值，指该函数期望传入的参数数量，即形参的个数。形参的数量不包括剩余参数个数，仅包括第一个具有默认值之前的参数个数。
+  console.log((function(a, [b, c], d, { e, f }) { }).length); //4 1个模板只代表1个参数
+</script>
+
+</html>
