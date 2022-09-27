@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+</head>
+
+<body>
+
+</body>
+<script>
+  // 生成器函数
+  function* myGenerator2(x) {
+    console.log('in generator:', yield x * 2);
+    console.log('again:', [yield]);
+  }
+  const tor = myGenerator2(2)
+  console.log('1st', tor.next('1st ignored').value); //1st 4
+  //in generator: data...
+  console.log('2nd', tor.next('data...').value); //2nd undefined
+  // again: Array [ 1 ]
+  console.log('3rd', tor.next(1, 2, 3, 4)); // {value:undefined,done:true} 无法返回下一个值，没有下一个yield
+
+  /* 返回的对象包含两个属性：
+
+    done (布尔类型)
+        如果迭代器超过迭代序列的末尾，则值为 true。 在这种情况下，value 可选地指定迭代器的返回值。
+        如果迭代器能够生成序列中的下一个值，则值为 false。 这相当于没有完全指定 done 属性。
+    value - 迭代器返回的任意的 JavaScript 值。当 done 的值为 true 时可以忽略该值。
+*/
+  const GeneratorFunction = Object.getPrototypeOf(function*() { }).constructor //获取生成器构造函数
+  var f = new GeneratorFunction;
+  console.log(f.prototype.constructor === f); //false
+  // f.prototype 继承自原型
+  let P = GeneratorFunction.prototype
+  console.log(Object.getPrototypeOf(f.prototype) === P.prototype);
+  console.log(Object.getPrototypeOf(f) === P);
+
+  //对象方法
+  const obj = {
+    *marker() {
+      console.log(typeof marker);
+    },
+    callMe() {
+      console.log(typeof callMe);
+    },
+    test: function() {
+      console.log(typeof test);
+    },
+    async callMe2() {
+
+    },
+    async *callMe3() { }
+  }
+  console.log('prototype' in obj.marker, obj.callMe(), obj.marker(), obj.test()); //true undefined Generator {  } undefined
+  console.log('prototype' in obj.callMe, 'prototype' in obj.callMe2, 'prototype' in obj.callMe3); //false false true
+  // 对象类的方法无法具名,只有生成器方法和异步生成器方法才有原型，其余方法没有原型
+
+  //箭头函数
+  function foo() {
+    const arrFunc = () => this.name
+    const obj2 = { name: 'me' }
+    console.log('call:', arrFunc.call(obj2));
+    console.log('bind:', arrFunc.bind(obj2)());
+  }
+  foo.call({ name: 'arrFunc' }) // arrFunc arrFunc
+  // 箭头函数的this只受箭头函数上下文影响，不会被bind、apply、call改变
+
+  // 绑定函数
+  class MyFunc {
+    static foo() {
+      console.log('method in MyFunc');
+    }
+    static listen() { }
+  }
+
+  class MyFuncEx extends MyFunc {
+    static foo() {
+      console.log('method in MyFuncEx');
+    }
+    callMe() {
+      console.log('call me in MyFuncEx');
+    }
+  }
+
+  let x = MyFuncEx.bind()
+  MyFuncEx.foo() //method in MyFuncEx
+  x.foo() //method in MyFunc
+  // 绑定到MyFuncEx的父类上
+  // 绑定函数继承的是MyFuncEx原型上的prototype属性
+  class MyFuncEx2 extends MyFuncEx.bind() { }
+  console.log('callMe:', 'callMe' in Object.getPrototypeOf(MyFuncEx2.prototype), 'callMe' in Object.getPrototypeOf(MyFuncEx2)); //callMe:false false
+  console.log('listen:', 'listen' in Object.getPrototypeOf(MyFuncEx2.prototype), 'listen' in Object.getPrototypeOf(MyFuncEx2)); // listen: false true
+
+  const Func = new Function
+  const y = Func.bind()
+  y.prototype = new Function  //伪造原型对象
+  console.log((new y) instanceof y); //true
+  console.log(y.prototype.isPrototypeOf(new y)); //false 
+  console.log(Func.prototype.isPrototypeOf(new y)); //true
+
+  function bar() {
+    'use strict'
+    console.log('this:', this && typeof this);
+    console.log('args:', ...arguments);
+  }
+  let baz = bar.bind(null, 1, 2, 3)
+  baz(4, 5, 6) //this:null args:1,2,3,4,5,6
+  // 忽略call和apply传入的thisArg
+  baz.call(new Object, 'a', 'b', 'c') // this:null args:1,2,3,'a','b','c'
+  let txt = bar.bind() //this:undefined args:1,2,3,4,5,6
+  txt(4, 5, 6)
+  /*
+  thisArg
+    调用绑定函数时作为 this 参数传递给目标函数的值。 如果使用new运算符构造绑定函数，则忽略该值。当使用 bind 在 setTimeout 中创建一个函数（作为回调提供）时，作为 thisArg 传递的任何原始值都将转换为 object。如果 bind 函数的参数列表为空，或者thisArg是null或undefined，执行作用域的 this 将被视为新函数的 thisArg。
+    执行作用域this？？？
+  */
+  console.log(Function instanceof Function); //true 自己是自己的实例
+
+  const aSet = new Set()
+  for (let i = 0; i < 10; i++) {
+    aSet.add(function foo() { })
+  }
+  console.log(aSet.size); //10
+  //初始化了10个不同的foo函数
+</script>
+
+</html>
