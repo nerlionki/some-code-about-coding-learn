@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+</head>
+
+<body>
+
+</body>
+<script>
+  // 方法调用
+  const obj = {
+    a: 'obj',
+    get foo() {
+      return () => {
+        console.log(this.name);
+      }
+    },
+    get foo2() {
+      return () => {
+        super.showMe()
+      }
+    }
+  }
+  obj.name = 'hello world'
+  Object.getPrototypeOf(obj).showMe = function() {
+    console.log(this.name);
+  }
+  obj.foo() //hello world
+  obj.foo2() //hello world
+
+  let propObj, obj2 = new Object;
+  let propSuper = {
+    foo() { console.log('Here'); }
+  }
+  Object.defineProperty(obj2, 'prop', propObj = {
+    ["set"]() {
+      super.foo()
+      console.log('这是一个特殊的setter');
+    }
+  })
+  Object.setPrototypeOf(propObj, propSuper)
+  obj2.prop = 100 //here 这是一个特殊的setter
+
+  class MyClass {
+    get x() {
+      return 100
+    }
+  }
+  class MyClassEx extends MyClass {
+    get x() {
+      return 200
+    }
+    foo() {
+      console.log(super.x, this.x);
+    }
+  }
+  let propObj2
+  Object.defineProperty(MyClassEx.prototype, 'foo2', propObj2 = {
+    value() {
+      console.log(super.x, this.x);
+    }
+  })
+  Object.setPrototypeOf(propObj2, MyClass.prototype)
+  let obj3 = new MyClassEx
+  obj3.foo()  //100,200
+  obj3.foo2() //  100,200
+
+  // 迭代
+  function* f(params) {
+    yield* [1, 2, 3]
+    yield undefined
+    yield 18
+    return 'complete'
+  }
+  const tor = f()
+  for (const i of tor) {
+    console.log(i); //1 2 3 undefined 18
+  }
+  console.log(tor.next().done, tor.next().value); //true undefined
+  const tor2 = f()
+  for (const i of tor2) {
+    if (i === 2) console.log(tor2.return('heiheihei')); //{value:heiheihei,done:true}
+    console.log(i); //1,2
+  }
+  Promise.all(new Set('abc')).then(all => console.log(all)) // ['a','b','c']
+
+  let arr = [1, 2, 3]
+  let iteratorMethod = arr[Symbol.iterator]
+  let monitor = {
+    ["return"](value) {
+      console.log(">>>return", this && this.name || '');
+      return { value, done: true }
+    },
+    ["throw"](err) {
+      console.log(">>>throw", this && this.name || '');
+      return { value: err, done: true }
+    },
+  }
+  let target = [4, 5, 6]
+  target[Symbol.iterator] = function() {
+    let tor2 = iteratorMethod.call(this)
+    return Object.assign(tor2, monitor, { name: 'target' })
+  }
+  function* aGen() {
+    yield 1;
+    yield 2;
+    yield* target;
+    yield 6
+  }
+  let aTor = aGen()
+  for (const i of aTor) {
+    if (i === 4) aTor.throw('error'); //{value:6,done:false}
+    console.log('i', i); //4 
+  }
+  console.log('next', aTor.next());//>>>throw target {value:undefined,done:true}
+  let aTor2 = aGen()
+  for (const i of aTor2) {
+    if (i === 4) break; //>>>return target {value:6,done:false} 如果使用continue，不会出现上述情况，只会简单跳过
+    console.log('i', i); //4 
+  }
+
+  function* testMe() {
+    let x = yield 10
+    console.log("[GET]", x);
+  }
+  let testTor = testMe()
+  testTor.next('1st'); //无输出，迭代器初始化忽略输出
+  testTor.next('2nd'); //[GET] 2nd
+  testTor.next('3rd') //无输出，testTor在第二次已经完成迭代
+</script>
+
+</html>
