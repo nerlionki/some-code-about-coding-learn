@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+</head>
+
+<body>
+
+</body>
+<script>
+
+  var msg = (function msg1(num) {
+    return msg1 = typeof msg1
+  })(10) + ', and upvalue is :' + typeof msg1
+
+  console.log(msg); //function, and upvalue is :undefined
+
+  function foo(x) {
+    'use strict'
+    eval(`
+    var y=100;
+    console.log(y);  //100
+    `)
+    console.log(y); //y is not defined
+  }
+  // foo()     // 严格模式下，eval有自己的作用域
+
+  // 对象闭包跟函数闭包混用
+  let obj = { value: 200 }
+  let value = 1000
+  with (obj) {  // 对象闭包
+    function foo() {  //函数闭包
+      value *= 2
+    }
+    foo()
+  }
+
+  console.log(obj.value); //400
+  console.log(value); //1000
+
+  let obj1 = new Object()
+  let events = { m1: "click", m2: "changed" }
+  for (e in events) {  //e 默认为var声明
+    obj1[e] = function() {
+      console.log(events[e]);
+    }
+  }
+  obj1.m1()  //changed
+  obj1.m2()  //chanege
+
+  let obj2 = new Object()
+  for (const e in events) {
+    obj2[e] = function() {
+      console.log(events[e]);
+    }
+  }
+  obj2.m1()  //click
+  obj2.m2()  //chanege
+
+  let obj3 = new Object()
+  for (e in events) {
+    // 使用自运行匿名函数实现闭包 需注意要使用变量绑定e值
+    (function() {
+      var aValue = e
+      obj3[e] = function() {
+        console.log(events[aValue]);
+      }
+    })()
+
+  }
+  obj3.m1()  //click
+  obj3.m2()  //chanege
+
+  let obj4 = new Object()
+  for (e in events) {
+    // 使用函数实例属性绑定当前e
+    (obj4[e] = function f() {
+      console.log(events[f.aValue]);
+    }).aValue = e
+
+  }
+  obj4.m1()  //click
+  obj4.m2()  //chanege
+
+  function bar(bar) {
+    // 函数内左侧bar声明覆盖了参数bar，右侧bar使用传入的bar参数
+    var bar = bar + bar
+    console.log(bar); // 输出函数内声明的bar
+  }
+  bar(100) //200
+</script>
+
+</html>
