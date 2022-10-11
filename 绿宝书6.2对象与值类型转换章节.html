@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+</head>
+<style>
+  .red {
+    width: 400px;
+    height: 400px;
+    background-color: red;
+  }
+
+  .green {
+    background-color: green;
+  }
+
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    grid-template-rows: 1fr 100px 1fr 1fr;
+  }
+
+  .grid-child {
+    grid-column: 2 / span 2;
+    grid-row: 2 / span 2;
+  }
+</style>
+
+<body>
+  <div class="red grid">
+    <div class="green grid-child"></div>
+  </div>
+</body>
+<script>
+  // 返回包装类
+  Object.prototype.getSelf = function() {
+    return this
+  }
+  // 返回包装类构造器
+  Object.prototype.getClass = function() {
+    return this.constructor
+  }
+  Object.prototype.getTypeof = function() {
+    return typeof this
+  }
+  Object.prototype.getInstanceof = function() {
+    return this instanceof this.getClass()
+  }
+  const simples = [
+    '', // "string", "object", String(), false, true
+    100, // "number", "object", Number(), false, true
+    true, // "boolean", "object", Boolean(), false, true
+    function() { }, // "function", "function", Function(), true, true 
+    {}, // "object", "object", Object(), true, true
+    [], // "object", "object", Array(), true, true
+    /./, // "object", "object", RegExp(), true, true
+  ]
+  simples.push(Symbol()) //"symbol", "object", Symbol(), false, true
+  // instanceof 运算符用于检测构造函数的 prototype 属性是否出现在某个实例对象的原型链上。
+  const getAttr = (v, v2, cls) => [typeof v, v2.getTypeof(), cls, v instanceof cls, v2.getInstanceof()]
+  simples.map(v => [typeof v, getAttr(v, v.getSelf(), v.getClass())]).forEach(([metaName, attr]) => {
+    console.log(metaName, ':', attr);
+  })
+  // 基础类型都不是通过内构造器构造
+  /*
+  函数是特例，
+  1.反映了JavaScript作为函数式语言的重要特性————函数是第一型 
+  一个能够动态创建，销毁，传递，返回的实体，和编程语言中的其他变量拥有同等地位
+  2.反映了JavaScript作为面向对象语言的重要特性————函数是对象
+  */
+
+  //  转换
+  String.prototype.toString = () => 0
+  console.log('5'.toString()); //0
+  console.log(1 + +'6'); //7
+  console.log(1 + new String('6')); // 16
+  String.prototype.valueOf = () => console.log('call me');
+  let x = '0'
+  x.valueOf() //call me
+  console.log(+x); //0
+  // 隐式转换不收到valueof 跟 toString的影响
+
+  x = { toString: () => '10', valueOf: () => -1 }
+  x[Symbol.toPrimitive] = (hint) => {
+    if (hint === 'string') {
+      return '1000'
+    } else if (hint === 'number') {
+      return 66
+    } else {
+      return -20
+    }
+  }
+  console.log(parseInt(x)); //1000
+  console.log(Math.abs(x)); //66
+  // 同时设立toString、valueof和Symbol.toPrimitive时，Symbol.toPrimitive优先于前两者
+
+  let y = new Number(100)
+  y[Symbol.toPrimitive] = (hint) => {
+    if (hint === 'string') {
+      return '1000'
+    } else if (hint === 'number') {
+      return 66
+    } else {
+      return -20
+    }
+  }
+
+  console.log(y); //Number { 100 }
+  console.log(1 + y); //-19 隐式转换hint等于defalut
+  console.log(y + 'nothing'); //-20nothing 隐式转换hint等于defalut
+  console.log(y.toString()); //100 显式转换成string类型
+  console.log(Number(y)); //66  显式转换成number类型
+  console.log(y.valueOf()); //100 取值仍为包装的值
+
+  let z = { toString: () => '10', valueOf: () => new Object }
+  console.log('abs z', Math.abs(z)); //优先调用valueOf 若返回null或者Object，再调用toString
+  let v = { toString: () => null, valueOf: () => 12 }
+  console.log('parseInt v', parseInt(v));  //NaN  优先调用toString 
+  console.log(v + 'anything'); //12anything 优先调用toString，若返回null或者Object，再调用valueOf
+</script>
+
+</html>
