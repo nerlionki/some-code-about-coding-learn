@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+</head>
+
+<body>
+
+</body>
+<script>
+  const x = new Set('123456asdf')
+  const arr = Int32Array.from(x)
+  console.log(arr); // [ 1, 2, 3, 4, 5, 6, 0, 0, 0, 0 ]
+  // console.log(new Map([NaN, 0], [NaN, 1]));// Uncaught TypeError: iterable for Map should have array-like objects
+  const arr1 = new Array(30)
+  arr1[1] = 2
+  arr1[3] = 5
+  arr1[35] = 100
+  const proxy = new Proxy(arr1, {
+    ownKeys() {
+      console.log('TRY->ownKeys()');
+      return Reflect.ownKeys(...arguments)
+    },
+    get(_, key) {
+      console.log('GET->', key);
+      return Reflect.get(...arguments)
+    }
+  })
+  // proxy.sort() // sort->length->1->3->35
+  // for (const x of proxy); //Symbol(Symbol.iterator)->length->下标->length->下标.... 直至35
+  // for (const x in proxy); // TRY->ownKeys()
+  // proxy.map(v => v * 2) // map->length->constructor->1->3->35
+  // proxy.some(v => v > 3) // some->length->1->3 直到满足条件
+  // proxy.forEach(v => v) // forEach->length->1->3->35
+  // proxy.filter(v => v > 3) // filter->length->constructor->1->3->35
+  // proxy.reduce((sum, v) => { sum = { v }; return sum }, {}) // reduce->length->1->3->35
+  // proxy.includes(5) // includes->length->下标  直到找到5
+  // proxy.find(v => v === 100) // find->length->下标  直到找到5
+  // proxy.every(v => v > 0) // every->length->1->3->35
+  // proxy.push(12) // push->length  push pop shift unshift 相同
+  // proxy.slice(1) //slice->length->1->3->35  slice(2)会输出slice->length->3->35
+  // proxy.splice(1) // slice->length->1->3->35 同slice
+  // proxy.concat([123]) // concat->constructor->Symbol("Symbol.isConcatSpreadable")->length->1->3->35->length
+  // console.log(proxy.length); //36
+  // console.log(proxy.join(',')) //,2,,5,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,100   join->length->下标  直到找到5
+</script>
+
+</html>
