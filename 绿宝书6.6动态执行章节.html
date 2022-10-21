@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+</head>
+
+<body>
+
+</body>
+<script>
+  var obj = { eval, x: 100 }
+  var x = 'global'
+  with (obj) {
+    console.log(x); //100
+
+    eval('console.log(x);') //100
+    obj.eval('console.log(x);') //global 任何环境下使用obj.eval()将默认使用非严格模式，并且作用域指向全局
+
+    eval('delete obj.x')
+    console.log(x);  //global
+
+    eval('obj.x=200;')
+    console.log(x); //200
+
+    let y = false
+    eval('let y="eval";console.log(y);') // eval eval有自己的作用，除非使用var
+    console.log(y, typeof y);  //false boolean
+  }
+
+  var f1 = () => eval('let x=new.target')
+  function foo() {
+    var x, f2 = () => eval('x=new.target')
+    f2()
+    console.log(x === foo);
+  }
+
+  //f1() //  new.target only allowed within functions
+  new foo() //true
+
+  try {
+    y = 100
+  } catch (error) {
+    console.log('in strict', error.message);
+  } finally {
+    console.log('now x is', typeof y);
+  }
+
+  function foo() {
+    var obj = { eval }
+    obj.eval(`
+  try {
+    y=100
+  } finally{
+    console.log('in obj.eval',y);
+  }
+  
+  `)
+  }
+  foo()
+  console.log('in global,y', y);
+  var exec = eval
+  var f = () => eval
+  exec('console.log("indirect call");') // indirect call
+  f()('console.log("indirect call");') // indirect call
+  eval.call(null, 'console.log("indirect call");'); // indirect call
+  (0, eval)('console.log("indirect call");'); // indirect call
+
+  var global_f = f3
+  function f3() {
+    var x = 100
+    eval('function f3(){}; var x=x*2')
+    console.log(f3 === global_f); // false   f3被eval执行的sourceText 重写了
+    console.log(x);  // 200
+  }
+  f3()
+  console.log(eval('true'), typeof eval('true')); // true boolean
+  console.log(eval('{value:1}'), typeof eval('{value:1}')); // 1 number
+  console.log(eval('({value:1})'), typeof eval('({value:1})')); // Object { value: 1 } object
+
+  var obj1 = {
+    foo: function() { },
+    data: 'string',
+    tag: false,
+  }
+  obj1.foo.x = obj1
+  console.log(JSON.stringify(obj1), obj1); // {"data":"string","tag":false} 忽略循环引用
+</script>
+
+</html>
