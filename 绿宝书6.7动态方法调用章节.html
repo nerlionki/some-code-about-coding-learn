@@ -46,19 +46,24 @@
   }
   fun_4('MyName')
   function fun_5(params) {
-    Array.prototype.push.call(arguments.callee.caller.arguments, 100)
+    let arr = Array.from(arguments.callee.caller.arguments)
+    arr.push(100)
+    return arr
+    // Array.prototype.push.call(arguments.callee.caller.arguments, 100)
   }
   function fun_6(name) {
-    fun_5()
+    // fun_5()
+    arguments = fun_5()
     console.log(arguments.length, ...arguments);
   }
   fun_6('MyName') // 1 'MyName'
 
   function fun_7(params) {
-    Array.prototype.sort.call(arguments.callee.caller.arguments)
+    return Array.from(arguments.callee.caller.arguments).sort()
+    // Array.prototype.sort.call(arguments.callee.caller.arguments)
   }
   function fun_8(v1, v2, v3) {
-    fun_7()
+    arguments = fun_7()
     console.log(v1, v2, v3, arguments);
   }
 
