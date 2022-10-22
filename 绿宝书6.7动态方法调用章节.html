@@ -55,15 +55,14 @@
   fun_6('MyName') // 1 'MyName'
 
   function fun_7(params) {
-    console.log(arguments.callee.caller.arguments);
-    Array.prototype.sort.apply(arguments.callee.caller.arguments)
+    Array.prototype.sort.call(arguments.callee.caller.arguments)
   }
   function fun_8(v1, v2, v3) {
     fun_7()
     console.log(v1, v2, v3, arguments);
   }
 
-  fun_8([1, 5, 3]) // [ 1, 5, 3 ] undefined undefined
+  fun_8(1, 5, 3) // 1 5 3
 
   function calc_area(w, h) {
     console.log(w * h);
@@ -76,6 +75,12 @@
     }
   }
   Area.doCalc(10, 100) // 2000 参数被改变了
+
+  function func(a = 55) {
+    arguments[0] = 99; // updating arguments[0] does not also update a
+    console.log(a, arguments[0]);  // 10 99
+  }
+  func(10); 
 </script>
 
 </html>
