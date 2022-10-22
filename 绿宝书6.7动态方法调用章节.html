@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+</head>
+
+<body>
+
+</body>
+<script>
+  let obj = {}
+  function foo(a) {
+    // 按照new运算的规则，this指向为新构建的对象
+    console.log(this === obj);
+
+    // 使用bind时传入的参数，在new运算传入的参数被忽略
+    console.log(a);
+  }
+  let Foo = foo.bind(obj, 'abc')
+
+  let newInstance = new Foo('123')  // false  'abc'
+  console.log(newInstance instanceof Foo); // true
+  console.log(newInstance instanceof foo); // true
+  console.log('prototype' in Foo);  // false
+
+
+  function bar() {
+    console.log(arguments.length, ...arguments);
+  }
+
+  let f = bar.bind(null, 1, 2, 3)
+  f('a', 'b') // 5 1 2 3 a b
+  let f2 = f.bind(new Object, 'a', 'b')
+  f2('x', 'y') // 7 1 2 3 a b x y
+
+  function fun_3() {
+    arguments.callee.caller.arguments[0] = 100
+  }
+  function fun_4(params) {
+    fun_3()
+    console.log(params, arguments[0]); // MyName MyName
+  }
+  fun_4('MyName')
+  function fun_5(params) {
+    Array.prototype.push.call(arguments.callee.caller.arguments, 100)
+  }
+  function fun_6(name) {
+    fun_5()
+    console.log(arguments.length, ...arguments);
+  }
+  fun_6('MyName') // 1 'MyName'
+
+  function fun_7(params) {
+    console.log(arguments.callee.caller.arguments);
+    Array.prototype.sort.apply(arguments.callee.caller.arguments)
+  }
+  function fun_8(v1, v2, v3) {
+    fun_7()
+    console.log(v1, v2, v3, arguments);
+  }
+
+  fun_8([1, 5, 3]) // [ 1, 5, 3 ] undefined undefined
+
+  function calc_area(w, h) {
+    console.log(w * h);
+  }
+  let Area = {
+    doCalc() {
+      console.log(arguments);
+      arguments[0] *= 2
+      calc_area.apply(this, arguments)
+    }
+  }
+  Area.doCalc(10, 100) // 2000 参数被改变了
+</script>
+
+</html>
