@@ -113,18 +113,28 @@
     yield* [6, 7];
     yield 8;
   }
+
   let aTor = aGen()
   for (const i of aTor) {
     if (i === 4) console.log(aTor.throw("error")) //>>>throw target {value:6,done:false} 只是退出了targt的迭代，aTor的迭代仍在继续
     if (i === 6) console.log(aTor.throw(new Error('123'))); // throw()被捕获以后，会附带执行下一条yield命令
-    console.log('thorw i', i); //4 7 8
+    console.log('thorw i', i); // 1 2 3 4 7 8
   }
-  console.log('next', aTor.next());// {value:undefined,done:true}
+  console.log('throw next', aTor.next());// {value:undefined,done:true}
+
   let aTor2 = aGen()
   for (const i of aTor2) {
     if (i === 4) break; //>>>return target {value:6,done:false} 如果使用continue，不会出现上述情况，只会简单跳过
-    console.log('break i', i); //4 
+    console.log('break i', i); // 1 2 3 
   }
+  console.log('break next', aTor2.next());// {value:undefined,done:true}
+
+  let aTor3 = aGen()
+  for (const i of aTor3) {
+    if (i === 4) console.log(aTor3.return('test'));  // >>>return target Object { value: "test", done: true }
+    console.log('return i', i); // 1 2 3 4
+  }
+  console.log('return next', aTor3.next());// {value:undefined,done:true}
 
   function* testMe() {
     let x = yield 10
@@ -153,6 +163,13 @@
   throw()抛错要被内部捕获，前提是必须至少执行过一次next()
   throw()被捕获以后，会附带执行下一条yield命令
   函数还未开始执行，这时throw()抛错只可能抛出在函数外部  */
+
+  /*
+    next()、throw()、return()本质上是同一件事，作用都是让函数恢复执行且使用不同的语句替换yield命令
+    next()：将yield命令替换成一个值
+    return()：将yield命令替换成一个return语句
+    throw()：将yield命令替换成一个throw语句  
+  */
 </script>
 
 </html>
