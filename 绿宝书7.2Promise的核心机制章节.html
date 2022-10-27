@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+</head>
+
+<body>
+
+</body>
+<script>
+  const isOK = false
+  var p = new Promise(function(reslove, reject) {
+    if (!isOK) reject('p rejected')
+    reslove('p reslove')
+  }).then((res) => {
+    console.log('p2 resolve', res); // p2 resolve p reslove
+  },
+    (err) => {
+      console.log('p2 reject', err); // p2 reject Error: p rejected  拦截并处理p的reject
+    }
+  ).then((res) => {
+    console.log('p3', res); // p3 undefined
+  }).catch(err => {
+    console.log('catch', err); // 不会到这里，在p2那里已经被拦截处理了
+  })
+
+
+  // resolve
+
+  var x = new Object, p1 = Promise.resolve(x), p2 = Promise.resolve(p1)
+  console.log('reslove', p1 === p2); // reslove true
+  p2.then(value => console.log('value===x', value === x))// value===x true
+
+  class PromiseEx extends Promise { }
+  var p3 = PromiseEx.resolve(x), p4 = Promise.resolve(p3)
+  console.log('PromiseEx reslove', p3 === p4); // reslove true
+  p4.then(value => console.log('PromiseEx value===x', value === x))// value===x true
+
+  var err = (reason) => console.log('REJECTED REASON x:', reason === x);
+  var p5 = Promise.reject(x)
+  Promise.resolve(p5).then(console.log).catch(err) // REJECTED REASON x: true
+</script>
+<script>
+  var x = { then(resolve, reject) { console.log('in thenable object'); resolve(100) } }
+  var p = Promise.resolve(x)
+  p.then(console.log) //100
+  console.log('thenable', x === p); // thenable false
+  let time1 = 1000, time2 = 4000
+  // 延迟4s后讲test1加到then链上
+  let test1 = new Promise((resolve, reject) => {
+    setTimeout(() => {
+      reject()
+      console.log('p1 rejected');
+    }, time1)
+  })
+  //触发两次 Uncaught (in promise) undefined 
+  setTimeout(() => {
+    let test2 = test1.then(x => x)
+    console.log(test2); // <state>: "rejected <reason>: undefined
+  }, time2)
+</script>
+
+</html>
