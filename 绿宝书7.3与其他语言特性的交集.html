@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+</head>
+
+<body>
+
+</body>
+<script>
+
+  // 与函数式特性交集
+  var x = Promise.reject('error of promise')
+  async function foo() {
+    try {
+      var v = await x
+    } catch (error) {
+      console.log(typeof error, error); // string error of promise
+    }
+    return 'Done'
+  }
+  foo().then(console.log) // Done
+  function* myGenerator() {
+    yield 10;
+    yield 20;
+  }
+  let tor = myGenerator()
+
+  async function* myAsyncGenerator() {
+    yield 10;
+    yield 20;
+  }
+  let tor2 = myAsyncGenerator()
+  var output = all => console.log(all);
+  async function picker2() {
+    var all = [], extract = ({ value, done }) => !done && all.push(value)
+    while (extract(await tor.next()));
+    return all
+  }
+  picker2(tor2).then(output) // Array [ 10, 20 ]
+
+  function sleep(tag, n, value) {
+    console.log(tag);
+    return new Promise(reslove => setTimeout(() => reslove(value), n))
+  }
+  async function* myAsyncGenerator2() {
+    yield sleep("yield 1st", 10000, 'value1 delay 10s');
+    yield sleep("yield 2nd", 1000, "value 2 now");
+  }
+  var tor3 = myAsyncGenerator2()
+  output = ({ value, done }) => console.log(value);
+  var values = [tor3.next(), tor3.next()] // yield 1st yield 2nd
+  values.forEach(p => p.then(output))  // value1 delay 10s ->value 2 now
+  // yield为了保证序列的一致性，有隐式的await，用来保证yield值的过以及promise对象就绪该值的过程是同步的
+
+  // 与动态特性交集
+  var p = Promise.resolve(10);
+  (async function() {
+    console.log(await p * 2); // 20 promise被隐式转换成number
+  })();
+  var resloveObj = Promise.resolve(new Object);
+  (async function() {
+    console.log((await resloveObj).toString()); // [object Object] promise被隐式转换成Object
+  })();
+</script>
+
+</html>

@@ -46,8 +46,8 @@
 </script>
 <script>
   var x = { then(resolve, reject) { console.log('in thenable object'); resolve(100) } }
-  var p = Promise.resolve(x)
-  p.then(console.log) //100
+  var p = Promise.resolve(x) // 等价于 p=new Promise((...args)=>{x.then(...args)})  自动执行x中的then方法
+  p.then(console.log) // in thenable object-> 100
   console.log('thenable', x === p); // thenable false
   let time1 = 1000, time2 = 4000
   // 延迟4s后讲test1加到then链上
@@ -62,6 +62,12 @@
     let test2 = test1.then(x => x)
     console.log(test2); // <state>: "rejected <reason>: undefined
   }, time2)
+
+  // Promise实现链式调用
+  /* Promise[Symbol.species]=function(){
+    return this
+  } */
+  // 当Promise的子类继承改属性并调用它的存取器时，this引用将指向子类的构造器
 </script>
 
 </html>
