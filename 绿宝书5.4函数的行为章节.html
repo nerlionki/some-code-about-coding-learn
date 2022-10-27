@@ -101,7 +101,7 @@
       return { value: err, done: true }
     },
   }
-  let target = [4, 5, 6]
+  let target = [3, 4, 5]
   target[Symbol.iterator] = function() {
     let tor2 = iteratorMethod.call(this)
     return Object.assign(tor2, monitor, { name: 'target' })
@@ -110,18 +110,20 @@
     yield 1;
     yield 2;
     yield* target;
-    yield 6
+    yield* [6, 7];
+    yield 8;
   }
   let aTor = aGen()
   for (const i of aTor) {
-    if (i === 4) aTor.throw('error'); //{value:6,done:false}
-    console.log('i', i); //4 
+    if (i === 4) console.log(aTor.throw("error")) //>>>throw target {value:6,done:false} 只是退出了targt的迭代，aTor的迭代仍在继续
+    if (i === 6) console.log(aTor.throw(new Error('123'))); // throw()被捕获以后，会附带执行下一条yield命令
+    console.log('thorw i', i); //4 7 8
   }
-  console.log('next', aTor.next());//>>>throw target {value:undefined,done:true}
+  console.log('next', aTor.next());// {value:undefined,done:true}
   let aTor2 = aGen()
   for (const i of aTor2) {
     if (i === 4) break; //>>>return target {value:6,done:false} 如果使用continue，不会出现上述情况，只会简单跳过
-    console.log('i', i); //4 
+    console.log('break i', i); //4 
   }
 
   function* testMe() {
@@ -130,8 +132,27 @@
   }
   let testTor = testMe()
   testTor.next('1st'); //无输出，迭代器初始化忽略输出
-  testTor.next('2nd'); //[GET] 2nd
+  testTor.next('2nd'); //[GET] 2nd next传入的2nd替换掉了10
   testTor.next('3rd') //无输出，testTor在第二次已经完成迭代
+
+
+  /*  每次调用next()，指针就从函数头部或上次停下的位置开始执行，直到遇到下一个yield命令或return语句为止
+  函数内部可不用yield命令，但会变成单纯的暂缓执行函数(还是需要next()触发)
+  yield命令是暂停执行的标记，next()是恢复执行的操作
+  yield命令用在另一个表达式中必须放在圆括号里  x=1+(yield)
+  yield命令用作函数参数或放在赋值表达式的右边，可不加圆括号
+  yield命令本身没有返回值，可认为是返回undefined
+  yield命令表达式为惰性求值，等next()执行到此才求值
+  函数调用后生成遍历器对象，此对象的Symbol.iterator是此对象本身
+  在函数运行的不同阶段，通过next()从外部向内部注入不同的值，从而调整函数行为
+  首个next()用来启动遍历器对象，后续才可传递参数
+  想首次调用next()时就能输入值，可在函数外面再包一层
+  一旦next()返回对象的done为true，for-of遍历会中止且不包含该返回对象
+  函数内部部署try-finally且正在执行try，那么return()会导致立刻进入finally，执行完finally以后整个函数才会结束
+  函数内部没有部署try-catch，throw()抛错将被外部try-catch捕获
+  throw()抛错要被内部捕获，前提是必须至少执行过一次next()
+  throw()被捕获以后，会附带执行下一条yield命令
+  函数还未开始执行，这时throw()抛错只可能抛出在函数外部  */
 </script>
 
 </html>
