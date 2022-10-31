@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+</head>
+
+<body>
+
+</body>
+<script>
+  const isOK = false
+  var p = new Promise(function(reslove, reject) {
+    if (!isOK) reject('p rejected')
+    reslove('p reslove')
+  }).then((res) => {
+    console.log('p2 resolve', res); // p2 resolve p reslove
+  },
+    (err) => {
+      console.log('p2 reject', err); // p2 reject Error: p rejected  拦截并处理p的reject
+    }
+  ).then((res) => {
+    console.log('p3', res); // p3 undefined
+  }).catch(err => {
+    console.log('catch', err); // 不会到这里，在p2那里已经被拦截处理了
+  })
+
+
+  // resolve
+
+  var x = new Object, p1 = Promise.resolve(x), p2 = Promise.resolve(p1)
+  console.log('reslove', p1 === p2); // reslove true
+  p2.then(value => console.log('value===x', value === x))// value===x true
+
+  class PromiseEx extends Promise { }
+  var p3 = PromiseEx.resolve(x), p4 = Promise.resolve(p3)
+  console.log('PromiseEx reslove', p3 === p4); // reslove true
+  p4.then(value => console.log('PromiseEx value===x', value === x))// value===x true
+
+  var err = (reason) => console.log('REJECTED REASON x:', reason === x);
+  var p5 = Promise.reject(x)
+  Promise.resolve(p5).then(console.log).catch(err) // REJECTED REASON x: true
+</script>
+<script>
+  var x = { then(resolve, reject) { console.log('in thenable object'); resolve(100) } }
+  var p = Promise.resolve(x) // 等价于 p=new Promise((...args)=>{x.then(...args)})  自动执行x中的then方法
+  p.then(console.log) // in thenable object-> 100
+  console.log('thenable', x === p); // thenable false
+  let time1 = 1000, time2 = 4000
+  // 延迟4s后讲test1加到then链上
+  let test1 = new Promise((resolve, reject) => {
+    setTimeout(() => {
+      reject()
+      console.log('p1 rejected');
+    }, time1)
+  })
+  //触发两次 Uncaught (in promise) undefined 
+  setTimeout(() => {
+    let test2 = test1.then(x => x)
+    console.log(test2); // <state>: "rejected <reason>: undefined
+  }, time2)
+
+  // Promise实现链式调用
+  /* Promise[Symbol.species]=function(){
+    return this
+  } */
+  // 当Promise的子类继承改属性并调用它的存取器时，this引用将指向子类的构造器
+</script>
+
+</html>

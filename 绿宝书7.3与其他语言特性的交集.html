@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+</head>
+
+<body>
+
+</body>
+<script>
+
+  // 与函数式特性交集
+  var x = Promise.reject('error of promise')
+  async function foo() {
+    try {
+      var v = await x
+    } catch (error) {
+      console.log(typeof error, error); // string error of promise
+    }
+    return 'Done'
+  }
+  foo().then(console.log) // Done
+  function* myGenerator() {
+    yield 10;
+    yield 20;
+  }
+  let tor = myGenerator()
+
+  async function* myAsyncGenerator() {
+    yield 10;
+    yield 20;
+  }
+  let tor2 = myAsyncGenerator()
+  var output = all => console.log(all);
+  async function picker2() {
+    var all = [], extract = ({ value, done }) => !done && all.push(value)
+    while (extract(await tor.next()));
+    return all
+  }
+  picker2(tor2).then(output) // Array [ 10, 20 ]
+
+  function sleep(tag, n, value) {
+    console.log(tag);
+    return new Promise(reslove => setTimeout(() => reslove(value), n))
+  }
+  async function* myAsyncGenerator2() {
+    yield sleep("yield 1st", 10000, 'value1 delay 10s');
+    yield sleep("yield 2nd", 1000, "value 2 now");
+  }
+  var tor3 = myAsyncGenerator2()
+  output = ({ value, done }) => console.log(value);
+  var values = [tor3.next(), tor3.next()] // yield 1st yield 2nd
+  values.forEach(p => p.then(output))  // value1 delay 10s ->value 2 now
+  // yield为了保证序列的一致性，有隐式的await，用来保证yield值的过以及promise对象就绪该值的过程是同步的
+
+  // 与动态特性交集
+  var p = Promise.resolve(10);
+  (async function() {
+    console.log(await p * 2); // 20 promise被隐式转换成number
+  })();
+  var resloveObj = Promise.resolve(new Object);
+  (async function() {
+    console.log((await resloveObj).toString()); // [object Object] promise被隐式转换成Object
+  })();
+  var thenableObj2 = {
+    then: function(reslove) {
+      reslove("reslove in thenableObj2");
+    }
+  }
+  var x = {
+    then: function(reslove) {
+      reslove(thenableObj2);
+    }
+  }
+  var p = Promise.resolve(x) // 返回了x.then()
+  console.log("p", p); // Promise { <state>: "fulfilled", <value>: "reslove in thenableObj2" }  
+  p.then(console.log); // reslove in thenableObj2 
+
+  // 结构化特性
+  class MyObject {
+    get data() {
+      return 100
+    }
+    static get data() {
+      return 200
+    }
+  }
+  class MyObjectEx extends MyObject {
+
+  }
+
+  Object.definePropertyEx = function(instance, name, desc) {
+    return Object.defineProperty(instance, name,
+      Object.setPrototypeOf(desc, Object.getPrototypeOf(instance))
+    )
+  }
+  // 将MyObjectEx的data取值函数变成异步函数
+  Object.definePropertyEx(MyObjectEx.prototype, 'data', {
+    async ["get"]() {
+      return super.data + 2
+    }
+  })
+  let obj5 = Object.definePropertyEx(new Object, 'data', {
+    async ["get"]() {
+      return super.data + 2
+    }
+  })
+  Object.getPrototypeOf(obj5).data = 1000
+  // 异步取值
+  obj5.data.then((res) => {
+    console.log('value of obj5', res); //1002
+  })
+  let obj4 = new MyObjectEx;
+  obj4.data.then((res) => {
+    console.log('value of obj4', res); //102
+  })
+
+  class MyAsyncObject { }
+  class MyAsyncObjectEx extends MyAsyncObject { }
+  Object.definePropertyEx(MyAsyncObject.prototype, 'data', {
+    async ["get"]() {
+      return 10001
+    }
+  })
+
+  Object.definePropertyEx(MyAsyncObjectEx.prototype, 'data', {
+    async ["get"]() {
+      // 如果父类get方法是异步的，再调用super时需要添加await
+      return await super.data + 2
+    }
+  })
+  let obj6 = new MyAsyncObjectEx;
+  obj6.data.then((res) => {
+    console.log('value of obj6', res); //10003
+  })
+</script>
+
+</html>
