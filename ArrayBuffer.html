@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+</head>
+
+<body>
+
+</body>
+<script>
+  var ab = new ArrayBuffer(16)
+  var view1 = new Uint8Array(ab)
+  var view2 = new Uint32Array(ab, 4)
+  var view3 = new Uint16Array(ab, 2, 4)
+  let x = 1
+  view1.fill(x)
+  // ab的每一个bit都保存成00000001
+  console.log(x.toString(2));
+  console.log('view1', view1, view1.buffer);
+  console.log('view2', view2);
+  console.log('view3', view3);
+</script>
+
+</html>
