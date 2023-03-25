@@ -39,6 +39,13 @@
   具名函数与匿名函数的区别 1是否有一个可影响当前作用域的标识符 2.是否可以用作声明语句
   f2跟f的差异在，f中的有一个函数体内可以访问的名字func2，func2无法在f体外的上下文访问，所以无法改变
   */
+  var b = 10;
+  (function b() {
+    b = 20;
+    console.log(b); //function
+  })();
+  console.log('b', b); //10
+  // IIFE函数拥有独立的词法作用域。这不仅避免了外界访问此 IIFE 中的变量，而且又不会污染全局作用域。
 
   function foo(a = 1, b, c = 2, d) {
     console.log(...arguments); //undefined, 100, 200, 300
